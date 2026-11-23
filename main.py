@@ -1,25 +1,29 @@
-#!/usr/bin/env python3
-"""One-Line Roast: The Gadget You Use Every Day.
+"""One-line roast: the gadget I use every day.
 
-Writes a single original line (at most 200 characters) roasting a
-gadget/app used every day to /output/entry.txt.
-
-No network, no model calls, no randomness: the same line every run, so
-the replay matches the live run exactly.
+Writes a single original roast line to /output/entry.txt.
+Deterministic: no clock, no randomness, no network, no model calls.
 """
 
-import os
+from pathlib import Path
 
-LINE = "My phone's autocorrect never fixes a typo — it just promotes it into a formal apology I have to send my boss."
-# The joke turns the phone's most "helpful" feature against itself: instead
-# of correcting the typo, autocorrect upgrades it into something worse —
-# a formal apology to the boss. One concrete daily detail, one punchline.
+SETUP = "My phone's autocorrect never fixes a typo"
+PUNCHLINE = "it just promotes it into a formal apology I have to send my boss."
+EM_DASH = "\u2014"
 
 
-def main():
-    os.makedirs("/output", exist_ok=True)
-    with open("/output/entry.txt", "w", encoding="utf-8") as f:
-        f.write(LINE)
+def build_roast() -> str:
+    """Assemble the single roast line from its two halves."""
+    return f"{SETUP} {EM_DASH} {PUNCHLINE}"
+
+
+def main() -> None:
+    output_dir = Path("/output")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = (output_dir / "entry.txt").resolve()
+    # Refuse to write outside the intended output directory.
+    if output_path.parent != output_dir.resolve():
+        raise ValueError("unsafe output path")
+    output_path.write_text(build_roast(), encoding="utf-8")
 
 
 if __name__ == "__main__":
